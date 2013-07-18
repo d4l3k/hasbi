@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#:cal SetSyn("Ruby")
 
 # Set process name
 $0 = "hasbi"
@@ -6,36 +7,53 @@ $0 = "hasbi"
 require 'bundler'
 Bundler.require
 
+class WebViewWindow
+    attr_accessor :window, :screen, :webview
+    def initialize
+        @window = Gtk::Window.new :toplevel
+        @window.set_type_hint 6
+        @window.set_decorated false
+        @screen = @window.get_screen
+        @webview = WebKit::WebView.new
+        @scroll = Gtk::ScrolledWindow.new nil, nil
+        @window.add @scroll
+        @scroll.add @webview
+        GObject.signal_connect(@window, "destroy") { Gtk.main_quit }
+        #transparent
+        post_init
+    end
+    # TODO: This doesn't work and I don't know why.
+    def transparent
+        visual = @screen.get_rgba_visual()
+        @window.set_visual visual
+        @scroll.set_visual visual
+        @webview.set_transparent true
+    end
+    def erb path
+        erb = Erubis::Eruby.new(File.read("views/#{path.to_s}.erb"))
+        result = erb.result(binding())
+        @window.show_all
+        @webview.load_html_string(result, "file://#{File.absolute_path("./web/#{path.to_s}")}")
+    end
+    def post_init
+    end
+end
+
+class StartMenu < WebViewWindow
+    def post_init
+        @window.resize @screen.get_width, @screen.get_height
+        @window.maximize
+        erb :index
+    end
+end
+
 def init
     # Setup window
     GirFFI.setup :WebKit, '3.0'
     Gtk.init
-    $win = Gtk::Window.new :toplevel
-    $screen = $win.get_screen
-    #alphamap = screen.get_rgba_visual()
-    #$win.set_visual(alphamap)
-    $win.set_type_hint(6)
-    $win.set_decorated false
-    scr = Gtk::ScrolledWindow.new nil, nil
-    $wv = WebKit::WebView.new
-    #$wv.set_visual(alphamap)
-    #$wv.set_transparent true
-    $win.add scr
-    scr.add $wv
-    $win.resize $screen.get_width, $screen.get_height
-    $win.maximize
-    #$win.set_opacity 0.0
-    #$wv.open("file://#{File.absolute_path('./web/index.html')}")
-    GObject.signal_connect($win, "destroy") { Gtk.main_quit }
     $app_info = []
     get_applications
-    webview_erb :index
-end
-def webview_erb path
-    erb = Erubis::Eruby.new(File.read("views/#{path.to_s}.erb"))
-    result = erb.result(binding())
-    $win.show_all
-    $wv.load_html_string(result, "file://"+File.absolute_path('./web/index.html'))
+    $startmenu = StartMenu.new
 end
 def get_applications
     $app_info = []
@@ -89,11 +107,6 @@ EM::run do
     $loading = true
     give_tick = proc { 
         Gtk::main_iteration; EM.next_tick(give_tick)
-        if $loading and $wv.get_load_status == :finished
-            puts "Finished loading!"
-            #$win.set_opacity 1.0
-            $loading = false
-        end
     }
     give_tick.call
     # Start Websocket
