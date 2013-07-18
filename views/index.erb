@@ -5,10 +5,10 @@
             height: 100%;
             overflow-y: hidden;
         }
+        <%= File.read('web/css/modern.css') %>
+        <%= File.read('web/css/modern-responsive.css') %>
+        <%= File.read('web/css/theme-dark.css') %>
     </style>
-    <link href="css/modern.css" rel="stylesheet">
-    <link href="css/modern-responsive.css" rel="stylesheet">
-    <link href="css/theme-dark.css" rel="stylesheet">
 </head>
 <body class="metrouicss">
     <div class="page secondary fixed-header">
@@ -39,8 +39,8 @@
 </body>
 <script>
     window.app_data = <%= MultiJson.dump($app_info) %>;
+    <%= File.read('web/jquery.min.js') %>
+    <%= File.read('web/javascript/jquery.mousewheel.min.js') %>
+    <%= File.read('web/javascript/start-menu.js') %>
+    <%= File.read('web/core.js') %>
 </script>
-<script src="jquery.min.js"></script>
-<script src="javascript/jquery.mousewheel.min.js"></script>
-<script src="javascript/start-menu.js"></script>
-<script src="core.js"></script>

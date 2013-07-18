@@ -71,6 +71,9 @@ def get_applications
             $app_info << data
         end
     end
+    $app_info.sort! do |a,b|
+        a["Name"].downcase <=> b["Name"].downcase
+    end
 end
 
 def get_name_bits
