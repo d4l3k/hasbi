@@ -1,34 +1,42 @@
+#!/usr/bin/env ruby
+
 # Set process name
 $0 = "hasbi"
 
 require 'bundler'
 Bundler.require
 
-# Setup window
-GirFFI.setup :WebKit, '3.0'
-Gtk.init
-win = Gtk::Window.new :toplevel
-screen = win.get_screen
-#alphamap = screen.get_rgba_colormap()
-#Gtk::Widget.set_default_colormap alphamap
-#win.set_colormap(alphamap)
-win.set_type_hint(6)
-#win.set_type_hint(2)
-scr = Gtk::ScrolledWindow.new nil, nil
-wv = WebKit::WebView.new
-#wv.pry
-#wv.set_transparent true
-win.add scr
-scr.add wv
-
-win.set_default_geometry 1920,1080
-#win.move(0,0)
-#win.set_keep_above true
-#win.stick
-win.show_all
-wv.open("file://#{File.absolute_path('./web/index.html')}")
-GObject.signal_connect(win, "destroy") { Gtk.main_quit }
-$app_info = []
+def init
+    # Setup window
+    GirFFI.setup :WebKit, '3.0'
+    Gtk.init
+    $win = Gtk::Window.new :toplevel
+    $screen = $win.get_screen
+    #alphamap = screen.get_rgba_visual()
+    #$win.set_visual(alphamap)
+    $win.set_type_hint(6)
+    $win.set_decorated false
+    scr = Gtk::ScrolledWindow.new nil, nil
+    $wv = WebKit::WebView.new
+    #$wv.set_visual(alphamap)
+    #$wv.set_transparent true
+    $win.add scr
+    scr.add $wv
+    $win.resize $screen.get_width, $screen.get_height
+    $win.maximize
+    #$win.set_opacity 0.0
+    #$wv.open("file://#{File.absolute_path('./web/index.html')}")
+    GObject.signal_connect($win, "destroy") { Gtk.main_quit }
+    $app_info = []
+    get_applications
+    webview_erb :index
+end
+def webview_erb path
+    erb = Erubis::Eruby.new(File.read("views/#{path.to_s}.erb"))
+    result = erb.result(binding())
+    $win.show_all
+    $wv.load_html_string(result, "file://"+File.absolute_path('./web/index.html'))
+end
 def get_applications
     $app_info = []
     Dir.glob('/usr/share/applications/*.desktop').each do |app|
@@ -64,10 +72,6 @@ def get_applications
         end
     end
 end
-def app_data
-    $app_info
-end
-get_applications
 
 def get_name_bits
     full = GLib.get_real_name
@@ -77,8 +81,17 @@ def get_name_bits
     return [first,last]
 end
 
+init
 EM::run do
-    give_tick = proc { Gtk::main_iteration; EM.next_tick(give_tick);}
+    $loading = true
+    give_tick = proc { 
+        Gtk::main_iteration; EM.next_tick(give_tick)
+        if $loading and $wv.get_load_status == :finished
+            puts "Finished loading!"
+            #$win.set_opacity 1.0
+            $loading = false
+        end
+    }
     give_tick.call
     # Start Websocket
     EM::WebSocket.start(:host => "0.0.0.0", :port => 38473) do |ws|
