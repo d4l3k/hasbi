@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+gem 'gir_ffi-gtk', :require=>'gir_ffi-gtk2'
+#gem 'webkit-gtk'
+gem 'eventmachine'
+gem 'em-websocket'
+gem 'multi_json'
+gem 'json'
+gem 'pry'
