@@ -2,6 +2,8 @@
     <style>
         body {
             background-color: black;
+            height: 100%;
+            overflow-y: hidden;
         }
     </style>
     <link href="css/modern.css" rel="stylesheet">
@@ -15,8 +17,8 @@
                 <div class="user-login">
                     <a href="#" onClick="execRuby('Process::exit')">
                         <div class="name">
-                            <span class="first-name">Tristan</span>
-                            <span class="last-name">Rice</span>
+                            <span class="first-name"></span>
+                            <span class="last-name"></span>
                         </div>
                         <div class="avatar">
                             <img src="images/myface.jpg"/>
@@ -28,13 +30,14 @@
                 <h1 class="fg-color-white">Start</h1>
             </div>
         </div>
-    </div>
-    <div class="page-region">
-        <div class="page-region-content tiles">
-            <div class="tile-group tile-drag">
+
+        <div class="page-region">
+            <div class="page-region-content tiles">
             </div>
         </div>
     </div>
 </body>
 <script src="jquery.min.js"></script>
+<script src="javascript/jquery.mousewheel.min.js"></script>
+<script src="javascript/start-menu.js"></script>
 <script src="core.js"></script>

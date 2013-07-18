@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gem 'gir_ffi-gtk', :require=>'gir_ffi-gtk2'
+gem 'gir_ffi-gtk', :require=>'gir_ffi-gtk3'
 #gem 'webkit-gtk'
 gem 'eventmachine'
 gem 'em-websocket'
