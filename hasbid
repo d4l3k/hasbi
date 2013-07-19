@@ -20,7 +20,7 @@ class WebViewWindow
         @window.add @scroll
         @scroll.add @webview
         GObject.signal_connect(@window, "destroy") { Gtk.main_quit }
-        #transparent
+        transparent
         post_init
     end
     # TODO: This doesn't work and I don't know why.
@@ -34,9 +34,7 @@ class WebViewWindow
         erb = Erubis::Eruby.new(File.read("views/#{path.to_s}.erb"))
         result = erb.result(binding())
         @window.show_all
-        @window.move -190, 0
         @webview.load_html_string(result, "file://#{File.absolute_path("./web/#{path.to_s}")}")
-        animate_move 0, 0, 0.2
     end
     def post_init
     end
@@ -46,20 +44,41 @@ class WebViewWindow
     def animate_move x, y, time
         start = Time.new
         pos = @window.get_position
-        move_tick = proc do
+        anim_tick = proc do
             time_since = Time.new - start
             if time_since >= time
                 @window.move x,y
             else
+                # Animation: Swing
                 scale = 0.5 - Math.cos(time_since/time*Math::PI)/2
+                ## Animation: Linear
                 #scale = time_since/time
                 new_x = pos[0]+(x-pos[0])*scale
                 new_y = pos[1]+(y-pos[1])*scale
                 @window.move new_x, new_y
-                EM.next_tick move_tick
+                EM.next_tick anim_tick
             end
         end
-        move_tick.call
+        anim_tick.call
+    end
+    def animate_opacity opacity, time
+        start = Time.new
+        start_opacity = @window.get_opacity
+        anim_tick = proc do
+            time_since = Time.new - start
+            if time_since >= time
+                @window.set_opacity opacity
+            else
+                # Animation: Swing
+                scale = 0.5 - Math.cos(time_since/time*Math::PI)/2
+                ## Animation: Linear
+                #scale = time_since/time
+                new_opacity = start_opacity+(opacity-start_opacity)*scale
+                @window.set_opacity new_opacity
+                EM.next_tick anim_tick
+            end
+        end
+        anim_tick.call
     end
 end
 
@@ -76,19 +95,22 @@ end
 class ApplicationSwitcher < WebViewWindow
     def post_init
         @window.resize 190, @screen.get_height
+        @window.move -190, 0
         erb :launcher
+        animate_move 0, 0, 0.2
     end
 end
 
 def init
     # Set process name
-    $0 = "hasbi"
+    $0 = "hasbid"
     # Setup window
     GirFFI.setup :WebKit, '3.0'
     Gtk.init
     $app_info = []
     get_applications
     help = false
+    forke = true
     ARGV.each do |arg|
         case arg
         when "startmenu"
@@ -99,14 +121,39 @@ def init
             binding.pry
         when "help"
             help = true
+        when "nofork"
+            forke = false
+        when "kill"
+            old_pid = `cat /run/user/\`id -u\`/hasbid`
+            if old_pid.length == 0
+                puts "hasbid process not found."
+            else
+                puts "Killing hasbid (pid: #{old_pid})"
+                `kill -9 #{old_pid}`
+                `rm /run/user/\`id -u\`/hasbid`
+            end
+            Process::exit
         else
             puts "Unrecognized argument: #{arg}"
             help = true
         end
     end
-    if ARGV.length == 0 or help
+    if help
         puts "usage: hasbi [startmenu|applicationswitcher|pry|help] [startmenu|applicationswitcher|pry|help] [...]"
         Process::exit
+    end
+    if forke
+        old_pid = `cat /run/user/\`id -u\`/hasbid`
+        if old_pid.length > 0
+            puts "hasbid is already running! If not, run: hasbid kill"
+            Process::exit
+        end
+        puts "Forking to background..."
+        pid = fork
+        if pid
+            `echo "#{pid}" > /run/user/\`id -u\`/hasbid`
+            Process::exit
+        end
     end
 end
 def get_applications
@@ -174,13 +221,40 @@ class HttpHost < EM::Connection
         #   @http_post_content
         #   @http_headers
         #puts @http_request_uri
-
-        win_id = @http_request_uri[1..-1]#.gsub("\n","")
-        EM.defer do
+        bits = @http_request_uri.split("/")
+        if bits[1]=="snapshot"
+            win_id = bits[2]
+            EM.defer do
+                response = EM::DelegatedHttpResponse.new(self)
+                response.status = 200
+                response.content_type 'image/png'
+                response.content = `xwd -display $DISPLAY -id #{win_id}|convert -thumbnail 167x93 xwd:- png:-`
+                response.send_response
+            end
+        elsif bits[1]=="launch"
             response = EM::DelegatedHttpResponse.new(self)
             response.status = 200
-            response.content_type 'image/png'
-            response.content = `xwd -display $DISPLAY -id #{win_id}|convert -thumbnail 167x93 xwd:- png:-`
+            response.content_type 'text/html'
+            response.content = "Launching: #{bits[2]}"
+            case bits[2]
+            when "startmenu"
+                if $startmenu
+                    $startmenu.destroy
+                    $startmenu = nil
+                else
+                    $startmenu = StartMenu.new
+                end
+            when "applicationswitcher"
+                if $applicationswitcher
+                    $applicationswitcher.destroy
+                    $applicationswitcher = nil
+                else
+                    $applicationswitcher = ApplicationSwitcher.new
+                end
+            else
+                response.content = "[ERROR] Unrecognized launch option: #{bits[2]}"
+                puts response.content
+            end
             response.send_response
         end
     end
@@ -201,7 +275,7 @@ EM::run do
         }
         ws.onclose { puts "Connection closed" }
         ws.onmessage { |msg|
-            puts "Recieved command: #{msg}"
+            puts "Received command: #{msg}"
             ws.send(MultiJson.dump(eval(msg)))
         }
     end

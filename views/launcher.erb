@@ -58,7 +58,7 @@
     <div class="application_well">
         <% WMCtrl.instance.windows.each do |win| 
             if win[:desktop]>=0 %>
-                <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('http://localhost:38474/<%= win[:id] %>');">
+                <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('http://localhost:38474/snapshot/<%= win[:id] %>');">
                     <div>
                         <%= win[:title] %>
                     </div>

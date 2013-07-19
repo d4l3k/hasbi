@@ -15,7 +15,7 @@
         <div class="page-header ">
             <div class="page-header-content">
                 <div class="user-login">
-                    <a href="#" onClick="execRuby('Process::exit')">
+                    <a href="#" onClick="execRuby('$startmenu.destroy; $startmenu = nil')">
                         <div class="name">
                             <% name_bits = get_name_bits %>
                             <span class="first-name"><%= name_bits[0] %></span>
