@@ -34,12 +34,32 @@ class WebViewWindow
         erb = Erubis::Eruby.new(File.read("views/#{path.to_s}.erb"))
         result = erb.result(binding())
         @window.show_all
+        @window.move -190, 0
         @webview.load_html_string(result, "file://#{File.absolute_path("./web/#{path.to_s}")}")
+        animate_move 0, 0, 0.2
     end
     def post_init
     end
     def destroy
         @window.destroy
+    end
+    def animate_move x, y, time
+        start = Time.new
+        pos = @window.get_position
+        move_tick = proc do
+            time_since = Time.new - start
+            if time_since >= time
+                @window.move x,y
+            else
+                scale = 0.5 - Math.cos(time_since/time*Math::PI)/2
+                #scale = time_since/time
+                new_x = pos[0]+(x-pos[0])*scale
+                new_y = pos[1]+(y-pos[1])*scale
+                @window.move new_x, new_y
+                EM.next_tick move_tick
+            end
+        end
+        move_tick.call
     end
 end
 
@@ -165,7 +185,6 @@ class HttpHost < EM::Connection
         end
     end
 end
-
 EM::run do
     init
     give_tick = proc { 
