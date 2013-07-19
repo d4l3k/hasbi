@@ -7,6 +7,7 @@ GEM
       http_parser.rb (~> 0.5.3)
     erubis (2.7.0)
     eventmachine (1.0.3)
+    eventmachine_httpserver (0.2.1)
     ffi (1.9.0)
     gir_ffi (0.6.4)
       ffi (~> 1.8)
@@ -38,6 +39,7 @@ DEPENDENCIES
   em-websocket
   erubis
   eventmachine
+  eventmachine_httpserver
   gir_ffi-gtk
   json
   multi_json

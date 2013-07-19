@@ -10,14 +10,26 @@
             bottom: 10px;
             left: 10px;
         }
+        .application_well {
+            padding-left: 10px;
+            position: absolute;
+            top:0;
+            left:0;
+            right:0;
+            bottom: 113px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
         .application {
             margin-top: 10px;
-            margin-bottom: 10px;
             width: 169px;
             height: 93px;
             background-color: white;
             border: 1px solid #555555;
             cursor: pointer;
+        }
+        .startbutton:hover, .application:hover {
+            outline: 3px #3a3a3a solid;
         }
         .application > div {
             position: relative;
@@ -40,17 +52,15 @@
     </style>
 </head>
 <body class="metrouicss">
-    <% `rm -rf web/images/tmp/*` 
-    WMCtrl.instance.windows(desktop:0).each do |win| 
-        `xwd -display $DISPLAY -id #{win[:id]}|convert -thumbnail 167x93 xwd:- web/images/tmp/#{win[:id]}.png`
-        
-    %>
-        <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('images/tmp/<%= win[:id]%>.png');">
-            <div>
-                <%= win[:title] %>
+    <div class="application_well">
+        <% WMCtrl.instance.windows(desktop:0).each do |win| %>
+            <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('http://localhost:38474/<%= win[:id] %>');">
+                <div>
+                    <%= win[:title] %>
+                </div>
             </div>
-        </div>
-    <% end %>
+        <% end %>
+    </div>
     <a class="startbutton" href="#">
         <img src="images/startbutton.png"></img>
     </a>
