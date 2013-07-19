@@ -15,6 +15,7 @@ GEM
       gir_ffi (~> 0.6.0)
     http_parser.rb (0.5.3)
     indentation (0.0.7)
+    interception (0.3)
     json (1.8.0)
     method_source (0.8.1)
     multi_json (1.7.7)
@@ -22,6 +23,9 @@ GEM
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
+    pry-rescue (1.1.1)
+      interception (>= 0.3)
+      pry
     slop (3.4.5)
 
 PLATFORMS
@@ -35,3 +39,4 @@ DEPENDENCIES
   json
   multi_json
   pry
+  pry-rescue

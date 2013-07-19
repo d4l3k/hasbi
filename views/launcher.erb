@@ -1,0 +1,55 @@
+</head>
+    <style>
+        body {
+            background-color: #111111 !important;
+            height: 100%;
+            overflow-y: hidden;
+        }
+        .startbutton {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+        .application {
+            position: relative;
+            top: 150px;
+            width: 167px;
+            height: 93px;
+            background-color: white;
+            border: 1px solid #555555;
+        }
+        .application > div {
+            position: relative;
+            height: 29px;
+            top: 62px;
+            width:100%;
+            padding: 6px;
+            background-color: rgba(26,26,26,0.9);
+            color: white;
+            font-family: 'Segoe UI Semibold', 'Open Sans', Verdana, Arial, Helvetica, sans-serif !important;
+            font-size: 10pt !important;
+            font-weight: 500 !important;
+        }
+        <%= File.read('web/css/modern.css') %>
+        <%= File.read('web/css/modern-responsive.css') %>
+        <%= File.read('web/css/theme-dark.css') %>
+    </style>
+</head>
+<body class="metrouicss">
+    <div class="application" href="#">
+        <div>
+            Blah
+        </div>
+    </div>
+    <a class="startbutton" href="#">
+        <img src="images/startbutton.png"></img>
+    </a>
+</body>
+<script>
+    window.app_data = <%= MultiJson.dump($app_info) %>;
+    <%= File.read('web/jquery.min.js') %>
+    <%= File.read('web/core.js') %>
+    $(".startbutton").click(function(e){
+        execRuby("$startmenu = StartMenu.new; $applicationswitcher.destroy; $applicationswitcher = nil", function(){});
+    });
+</script>

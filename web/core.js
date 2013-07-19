@@ -1,4 +1,3 @@
-console.log('Hello from inside WebKit!');
 var conn = new WebSocket('ws://localhost:38473');
 var rubyQueue = [];
 function execRuby(msg,callback){
@@ -16,16 +15,3 @@ conn.onmessage = function(e) {
     func = rubyQueue.shift();
     func(e.data);
 }
-$.each(app_data,function(index, item){
-    var group_str = item.Name.slice(0,1).toLowerCase();
-    console.log(group_str)
-    var tile_group = $('.tile-group.'+group_str);
-    if(tile_group.length == 0){
-        tile_group = $('<div class="tile-group tile-drag '+group_str+'"></div>').appendTo('.page-region-content');
-    }
-    $('<div class="tile icon" onClick="execProg(\''+item.Exec+'\')"><div class="tile-content"><img src="'+item.Icon+'"/></div><div class="brand"><span class="name">'+item.Name+'</span></div></div>').appendTo(tile_group);
-});
-$(function(){
-    $.StartMenu();
-});
-$(document).resize();

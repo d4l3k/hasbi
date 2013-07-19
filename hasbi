@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 #:cal SetSyn("Ruby")
 
-# Set process name
-$0 = "hasbi"
+$config = {
+    startmenu_on_all_screens: false
+}
 
 require 'bundler'
 Bundler.require
@@ -37,23 +38,48 @@ class WebViewWindow
     end
     def post_init
     end
+    def destroy
+        @window.destroy
+    end
 end
 
 class StartMenu < WebViewWindow
     def post_init
         @window.resize @screen.get_width, @screen.get_height
-        @window.maximize
+        if not $config['startmenu_on_all_screens']
+            @window.maximize
+        end
         erb :index
+    end
+end
+class ApplicationSwitcher < WebViewWindow
+    def post_init
+        @window.resize 190, @screen.get_height
+        erb :launcher
     end
 end
 
 def init
+    # Set process name
+    $0 = "hasbi"
     # Setup window
     GirFFI.setup :WebKit, '3.0'
+    GirFFI.setup :Wnck, '3.0'
     Gtk.init
     $app_info = []
     get_applications
-    $startmenu = StartMenu.new
+    ARGV.each do |arg|
+        case arg
+        when "startmenu"
+            $startmenu = StartMenu.new
+        when "applicationswitcher"
+            $applicationswitcher = ApplicationSwitcher.new
+        when "pry"
+            binding.pry
+        else
+            puts "Unrecognized argument: #{arg}"
+        end
+    end
 end
 def get_applications
     $app_info = []
