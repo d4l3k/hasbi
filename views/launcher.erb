@@ -20,6 +20,9 @@
             overflow-y: auto;
             overflow-x: hidden;
         }
+        .application_well::-webkit-scrollbar {
+            width: 0px;
+        }
         .application {
             margin-top: 10px;
             width: 169px;
@@ -53,13 +56,15 @@
 </head>
 <body class="metrouicss">
     <div class="application_well">
-        <% WMCtrl.instance.windows(desktop:0).each do |win| %>
-            <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('http://localhost:38474/<%= win[:id] %>');">
-                <div>
-                    <%= win[:title] %>
+        <% WMCtrl.instance.windows.each do |win| 
+            if win[:desktop]>=0 %>
+                <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('http://localhost:38474/<%= win[:id] %>');">
+                    <div>
+                        <%= win[:title] %>
+                    </div>
                 </div>
-            </div>
-        <% end %>
+        <%  end
+        end %>
     </div>
     <a class="startbutton" href="#">
         <img src="images/startbutton.png"></img>
