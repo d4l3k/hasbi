@@ -1,13 +1,14 @@
 #!/usr/bin/env ruby
 #:cal SetSyn("Ruby")
 
+Dir.chdir File.dirname(__FILE__)
+
 $config = {
     startmenu_on_all_screens: false
 }
 
 require 'bundler'
-Bundler.require
-
+Bundler.require 
 class WebViewWindow
     attr_accessor :window, :screen, :webview
     def initialize
@@ -167,7 +168,7 @@ def get_applications
             lines.each do |line|
                 bits = line.split("=")
                 if bits.length>1
-                    if bits[0]=="Name" or bits[0]=="Exec" or bits[0]=="Comment"
+                    if bits[0]=="Name" or bits[0]=="Exec" or bits[0]=="C__filepath__ rubyomment"
                         data[bits[0]]=bits[1]
                     elsif bits[0]=="Icon"
                         if bits[1][0]=='/'
@@ -212,7 +213,7 @@ class HttpHost < EM::Connection
         # the http request details are available via the following instance variables:
         #   @http_protocol
         #   @http_request_method
-        #   @http_cookie
+        #   @http_cookie__filepath__ ruby
         #   @http_if_none_match
         #   @http_content_type
         #   @http_path_info
