@@ -19,6 +19,7 @@ GEM
     json (1.8.0)
     method_source (0.8.1)
     multi_json (1.7.7)
+    pkg-config (1.1.4)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -26,6 +27,8 @@ GEM
     pry-rescue (1.1.1)
       interception (>= 0.3)
       pry
+    ruby-wmctrl (0.0.5)
+      pkg-config
     slop (3.4.5)
 
 PLATFORMS
@@ -40,3 +43,4 @@ DEPENDENCIES
   multi_json
   pry
   pry-rescue
+  ruby-wmctrl

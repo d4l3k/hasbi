@@ -47,6 +47,7 @@ class StartMenu < WebViewWindow
     def post_init
         @window.resize @screen.get_width, @screen.get_height
         if not $config['startmenu_on_all_screens']
+            @window.fullscreen
             @window.maximize
         end
         erb :index
@@ -64,7 +65,6 @@ def init
     $0 = "hasbi"
     # Setup window
     GirFFI.setup :WebKit, '3.0'
-    GirFFI.setup :Wnck, '3.0'
     Gtk.init
     $app_info = []
     get_applications

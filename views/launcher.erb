@@ -11,12 +11,13 @@
             left: 10px;
         }
         .application {
-            position: relative;
-            top: 150px;
-            width: 167px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width: 169px;
             height: 93px;
             background-color: white;
             border: 1px solid #555555;
+            cursor: pointer;
         }
         .application > div {
             position: relative;
@@ -29,6 +30,9 @@
             font-family: 'Segoe UI Semibold', 'Open Sans', Verdana, Arial, Helvetica, sans-serif !important;
             font-size: 10pt !important;
             font-weight: 500 !important;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
         }
         <%= File.read('web/css/modern.css') %>
         <%= File.read('web/css/modern-responsive.css') %>
@@ -36,11 +40,17 @@
     </style>
 </head>
 <body class="metrouicss">
-    <div class="application" href="#">
-        <div>
-            Blah
+    <% `rm -rf web/images/tmp/*` 
+    WMCtrl.instance.windows(desktop:0).each do |win| 
+        `xwd -display $DISPLAY -id #{win[:id]}|convert -thumbnail 167x93 xwd:- web/images/tmp/#{win[:id]}.png`
+        
+    %>
+        <div class="application" href="#" data-wid=<%= win[:id] %> style="background-image: url('images/tmp/<%= win[:id]%>.png');">
+            <div>
+                <%= win[:title] %>
+            </div>
         </div>
-    </div>
+    <% end %>
     <a class="startbutton" href="#">
         <img src="images/startbutton.png"></img>
     </a>
@@ -51,5 +61,10 @@
     <%= File.read('web/core.js') %>
     $(".startbutton").click(function(e){
         execRuby("$startmenu = StartMenu.new; $applicationswitcher.destroy; $applicationswitcher = nil", function(){});
+    });
+    $(".application").click(function(e){
+        data = $(this).data().wid;
+        console.log(data);
+        execRuby("WMCtrl.instance.action_window("+data+", :activate); Process::exit",function(){});
     });
 </script>

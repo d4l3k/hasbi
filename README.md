@@ -7,3 +7,10 @@ Right now the only way to close the menu is by clicking on your name in the top 
 Screenshots
 =====
 ![Start Menu](http://i.imgur.com/lcxhkcO.png)
+
+Required Software
+=====
+Gtk3
+WebKitGtk3
+xorg-xwd
+Ruby
