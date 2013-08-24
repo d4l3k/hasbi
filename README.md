@@ -26,3 +26,7 @@ Ruby
 Xorg-Xwd
 
 ImageMagick
+
+Configuration
+=====
+You need to allow HID access from non-root users. [Follow this guide](http://puredata.info/docs/tutorials/HowToReadHIDDevicesInLinuxWithoutBeingRoot)

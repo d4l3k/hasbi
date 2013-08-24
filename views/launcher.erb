@@ -80,6 +80,6 @@
     $(".application").click(function(e){
         data = $(this).data().wid;
         console.log(data);
-        execRuby("WMCtrl.instance.action_window("+data+", :activate); Process::exit",function(){});
+        execRuby("WMCtrl.instance.action_window("+data+", :activate); $applicationswitcher.destroy; $applicationswitcher = nil",function(){});
     });
 </script>
