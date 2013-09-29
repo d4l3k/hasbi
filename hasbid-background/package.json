@@ -1,0 +1,9 @@
+{
+  "name": "hasbi-wallpaper",
+  "main": "index.html",
+  "window": {
+    "show": false,
+    "position": "center",
+    "as_desktop": true
+  }
+}

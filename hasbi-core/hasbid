@@ -262,10 +262,39 @@ class HttpHost < EM::Connection
 end
 EM::run do
     init
-    give_tick = proc { 
-        Gtk::main_iteration; EM.next_tick(give_tick)
+    Process::fork do
+        Gtk::main
+    end
+    $revdev = Revdev::EventDevice.new '/dev/input/by-id/usb-eGalax_Inc._eGalaxTouch_EXC7910-1031-12.00.03-event-if00'
+    operation = proc {
+        $revdev.read_input_event
     }
-    give_tick.call
+    mt_slot = 0
+    mt_data = []
+    touched = false
+    callback = proc { |result|
+        mt_data[mt_slot]||={x:-1,y:-1,down:false,id:-1,slot:mt_slot}
+        if not result.nil?
+            puts mt_data[mt_slot].inspect
+            puts result.hr_code.inspect
+            if result.hr_code == :ABS_MT_SLOT
+                mt_slot = result.value
+                mt_data[mt_slot]||={x:-1,y:-1,down:false,id:-1,slot:mt_slot}
+                mt_data[mt_slot][:slot]=mt_slot
+            elsif result.hr_code == :ABS_MT_TRACKING_ID 
+                mt_data[mt_slot][:id] = result.value
+                mt_data[mt_slot][:down] = (result.value!=-1)
+            elsif result.hr_code == :ABS_MT_POSITION_X
+                mt_data[mt_slot][:x] = result.value
+            elsif result.hr_code == :ABS_MT_POSITION_Y
+                mt_data[mt_slot][:y] = result.value
+            elsif result.hr_code == :BTN_TOUCH
+                touched = (result.value==1)
+            end
+        end
+        EM.defer(operation,callback)
+    }
+    callback.call
     # Start Websocket
     EM::WebSocket.start(:host => "localhost", :port => 38473) do |ws|
         ws.onopen { |handshake|

@@ -28,6 +28,7 @@ GEM
     pry-rescue (1.1.1)
       interception (>= 0.3)
       pry
+    revdev (0.2.1)
     ruby-wmctrl (0.0.5)
       pkg-config
     slop (3.4.5)
@@ -45,4 +46,5 @@ DEPENDENCIES
   multi_json
   pry
   pry-rescue
+  revdev
   ruby-wmctrl
